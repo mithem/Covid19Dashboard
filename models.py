@@ -81,7 +81,7 @@ class Measurement:
         else:
             raise StopIteration
     
-    def allData(self):
+    def humanReadable(self):
         return f"""T-Confirmed: {self.total_confirmed}
     N-Confirmed: {self.new_confirmed}
     T-Deaths: {self.total_deaths}

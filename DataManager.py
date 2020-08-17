@@ -16,8 +16,8 @@ class DataManager:
     logger: Logger
     debug: bool
     
-    def load_from_api(self):
-        self.logger.debug("Loading data from API...", self.debug)
+    def load_summary(self):
+        self.logger.debug("Loading summary...", self.debug)
         t1 = time.perf_counter()
         
         r = requests.get("https://api.covid19api.com/summary")
@@ -34,11 +34,14 @@ class DataManager:
         
         self.latest_measurements.sort()
         self.latest_measurements.insert(0, global_measurement)
+        t2 = time.perf_counter()
+        self.logger.debug(f"Got summary for {len(data['Countries'])} countries in {t2 - t1}s", self.debug)
         
+    def load_history(self):
         for country in self.countries_to_observe:
             capCountry = country[0].upper() + country[1:]
             self.logger.debug(f"Getting data for {capCountry}", self.debug)
-            t3 = time.perf_counter()
+            t1 = time.perf_counter()
             r = requests.get(f"https://api.covid19api.com/country/{country}")
             l = r.json()
             c = Country(l[0]["Country"], l[0]["CountryCode"])
@@ -47,11 +50,8 @@ class DataManager:
             for data in l:
                 measurement = Measurement(c, datetime.datetime.fromisoformat(data["Date"][:-1]), data["Confirmed"], 0, data["Deaths"], 0, data["Recovered"], 0, data["Active"])
                 self.country_history[lower_code].append(measurement)
-            t4 = time.perf_counter()
-            self.logger.debug(f"Got and processed data for {capCountry} in {t4 - t3}s", self.debug)
-        
-        t2 = time.perf_counter()
-        self.logger.debug(f"Got and processed data from API: {t2 - t1}s", self.debug)
+            t2 = time.perf_counter()
+            self.logger.debug(f"Got and processed data for {capCountry} in {t2 - t1}s", self.debug)
     
     def __init__(self, logger: Logger, countries_to_observe: list, debug: bool):
         self.latest_measurements = LatestMeasurements()
@@ -59,5 +59,4 @@ class DataManager:
         self.country_history = {}
         self.logger = logger
         self.debug = debug
-        self.logger.debug(f"Countries to observe: {self.countries_to_observe}", self.debug)
         self.logger.success("Initialized DataManager", False)
