@@ -39,7 +39,7 @@ class Measurement:
         
         pop = population_sizes.get(country.code.lower(), None)
         if pop != None:
-            self.population_percent = round((float(total_confirmed) / float(pop)) * 100.0, 2)
+            self.population_percent = (float(total_confirmed) / float(pop)) * 100.0
         else:
             self.population_percent = None
         

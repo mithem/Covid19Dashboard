@@ -5,16 +5,38 @@ import time
 import requests
 from fileloghelper import Logger
 
+import constants
 from models import *
 
 
 class DataManager:
     
     latest_measurements: LatestMeasurements
-    countries_to_observe: [str]
+    _countries_to_observe: [str]
     country_history: dict
     logger: Logger
     debug: bool
+    
+    @property
+    def countries_to_observe(self):
+        return self._countries_to_observe
+    
+    @countries_to_observe.setter
+    def countries_to_observe(self, c_to_observe: [str]):
+        self._countries_to_observe = []
+        supported_countries = constants.country_to_code.keys()
+        for i in c_to_observe:
+            i_lower = i.lower()
+            if i_lower in supported_countries:
+                self._countries_to_observe.append(i)
+            maybe_country_name = constants.code_to_country.get(i_lower, None)
+            if maybe_country_name != None:
+                self._countries_to_observe.append(maybe_country_name)
+            else:
+                try:
+                    self.logger.warning(f"Unable to identify country {i}.", self.debug)
+                except:
+                    pass
     
     def load_summary(self):
         self.logger.debug("Loading summary...", self.debug)
@@ -59,4 +81,7 @@ class DataManager:
         self.country_history = {}
         self.logger = logger
         self.debug = debug
-        self.logger.success("Initialized DataManager", False)
+        try:
+            self.logger.success("Initialized DataManager", False)
+        except:
+            pass
