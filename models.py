@@ -82,13 +82,14 @@ class Measurement:
             raise StopIteration
     
     def humanReadable(self):
-        return f"""T-Confirmed: {self.total_confirmed}
-    N-Confirmed: {self.new_confirmed}
-    T-Deaths: {self.total_deaths}
-    N-Deaths: {self.new_deaths}
-    T-Recovered: {self.total_recovered}
-    N-Recovered: {self.new_recovered}
-    Active: {self.active}
+        return f"""Country: {self.country.code.upper()}
+T-Confirmed: {self.total_confirmed}
+N-Confirmed: {self.new_confirmed}
+T-Deaths: {self.total_deaths}
+N-Deaths: {self.new_deaths}
+T-Recovered: {self.total_recovered}
+N-Recovered: {self.new_recovered}
+Active: {self.active}
     """
 
 class LatestMeasurements(list):

@@ -60,13 +60,28 @@ class DataManager:
         self.logger.debug(f"Got summary for {len(data['Countries'])} countries in {t2 - t1}s", self.debug)
         
     def load_history(self):
+        print(f"CTOObserve before loading: {self.countries_to_observe}")
         for country in self.countries_to_observe:
             capCountry = country[0].upper() + country[1:]
             self.logger.debug(f"Getting data for {capCountry}", self.debug)
             t1 = time.perf_counter()
-            r = requests.get(f"https://api.covid19api.com/country/{country}")
+            r = requests.get(f"https://api.covid19api.com/total/country/{country}")
             l = r.json()
-            c = Country(l[0]["Country"], l[0]["CountryCode"])
+            code = l[0].get("CountryCode", "")
+            if code == "":
+                name = l[0].get("Country", "")
+                if name == "":
+                    try:
+                        c = Country(country, constants.country_to_code[country])
+                    except:
+                        try:
+                            c = Country(constants.code_to_country[country])
+                        except:
+                            self.logger.warning(f"Needed to skip country {country} as it is unidentifiable though known to covid19api.com")
+                else:
+                    c = Country(name, constants.country_to_code[name.lower()])
+            else:
+                c = Country(constants.code_to_country[code.lower()], code)
             lower_code = c.code.lower()
             self.country_history[lower_code] = []
             for data in l:
